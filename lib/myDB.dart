@@ -35,7 +35,7 @@ class Mydb {
         QteStock INTEGER, 
         isVeg INTEGER, 
         nature TEXT, 
-        options INTEGER, 
+        options TEXT, 
         archive INTEGER
       )''');
       await db.execute(
@@ -43,14 +43,70 @@ class Mydb {
       await db.execute(
           'INSERT INTO Users(name,email,pass,type) VALUES("admin","admin@gmail.com","Password0",0)');
       await db.execute(
-          'INSERT INTO Pizza(title, desc, img, price, old_price, QteStock, isVeg, nature, options, archive) VALUES("The Beast","With this pizza,you won\'t be hungry for days...","images/pizza.jpeg","\$12.6","\$14.00",2,0,"SPICY",1,1)');
-      await db.execute(
-          'INSERT INTO Pizza(title, desc, img, price, old_price, QteStock, isVeg, nature, options, archive) VALUES("cheesy Marvel","This is the best cheesy pizza you\'ll ever have!","images/pizza.jpeg","\$10.80","\$12.00",2,0,"BLAND",1,1)');
-      await db.execute(
-          'INSERT INTO Pizza(title, desc, img, price, old_price, QteStock, isVeg, nature, options, archive) VALUES("The Classic","Simple is sometimes the best..","images/pizza.jpeg","\$9.0","\$10.00",2,1,"BALANCE",1,1)');
-      await db.execute(
-          'INSERT INTO Pizza(title, desc, img, price, old_price, QteStock, isVeg, nature, options, archive) VALUES("Peperoni Pizza","With this pizza,you won\'t be hungry for days...","images/pizza.jpeg","\$9.80","\$11.00",2,1,"BALANCE",1,1)');
-      print("oncret=============================================");
+  'INSERT INTO Pizza(title, desc, img, price, old_price, QteStock, isVeg, nature, options, archive) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+  [
+    "The Beast",
+    "With this pizza, you won't be hungry for days...",
+    "images/pizza.jpeg",
+    "\$12.6",
+    "\$14.00",
+    2,
+    0,
+    "SPICY",
+    '{"calories": 200, "protein": 15, "fat": 10, "carbs": 30}',  // JSON as string
+    1
+  ]
+);
+
+await db.execute(
+  'INSERT INTO Pizza(title, desc, img, price, old_price, QteStock, isVeg, nature, options, archive) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+  [
+    "Cheesy Marvel",
+    "This is the best cheesy pizza you'll ever have!",
+    "images/pizza.jpeg",
+    "\$10.80",
+    "\$12.00",
+    2,
+    0,
+    "BLAND",
+    '{"calories": 200, "protein": 15, "fat": 10, "carbs": 30}',  // JSON as string
+    1
+  ]
+);
+
+await db.execute(
+  'INSERT INTO Pizza(title, desc, img, price, old_price, QteStock, isVeg, nature, options, archive) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+  [
+    "The Classic",
+    "Simple is sometimes the best..",
+    "images/pizza.jpeg",
+    "\$9.0",
+    "\$10.00",
+    2,
+    1,
+    "BALANCE",
+    '{"calories": 200, "protein": 15, "fat": 10, "carbs": 30}',  // JSON as string
+    1
+  ]
+);
+
+await db.execute(
+  'INSERT INTO Pizza(title, desc, img, price, old_price, QteStock, isVeg, nature, options, archive) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+  [
+    "Peperoni Pizza",
+    "With this pizza, you won't be hungry for days...",
+    "images/pizza.jpeg",
+    "\$9.80",
+    "\$11.00",
+    2,
+    1,
+    "BALANCE",
+    '{"calories": 200, "protein": 15, "fat": 10, "carbs": 30}',  // JSON as string
+    1
+  ]
+);
+
+
     });
     return database;
   }
@@ -58,7 +114,6 @@ class Mydb {
   selectData(String query) async {
     Database? database = await db;
     List response = await database!.rawQuery(query);
-    print("select =============================================");
     return response;
   }
 

@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:project2/myDB.dart';
 import 'package:provider/provider.dart';
 import 'package:project2/PurchaseCount.dart';
 
@@ -12,6 +14,24 @@ class PizzaPage extends StatefulWidget {
 }
 
 class _PizzaPage extends State<PizzaPage> {
+  Map<String, dynamic> options = {};
+  Mydb mydb = Mydb();
+  getData() async {
+    List<Map<String, dynamic>> response = await mydb
+        .selectData("SELECT options FROM Pizza WHERE title='${widget.title}'");
+    String toJson = response[0]["options"];
+    setState(() {
+      options = jsonDecode(toJson);
+      print(options);
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getData();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -86,7 +106,7 @@ class _PizzaPage extends State<PizzaPage> {
                             children: [
                               Icon(Icons.local_fire_department,
                                   color: Colors.red),
-                              Text("242 Calories")
+                              Text("${options['calories']} Calories")
                             ],
                           ),
                         ),
@@ -94,7 +114,7 @@ class _PizzaPage extends State<PizzaPage> {
                           child: Column(
                             children: [
                               Icon(Icons.fitness_center, color: Colors.red),
-                              Text("24g protein")
+                              Text("${options['protein']}g protein")
                             ],
                           ),
                         ),
@@ -103,7 +123,7 @@ class _PizzaPage extends State<PizzaPage> {
                             children: [
                               Icon(Icons.water_drop_outlined,
                                   color: Colors.red),
-                              Text("18g Fat")
+                              Text("${options['fat']}g Fat")
                             ],
                           ),
                         ),
@@ -111,7 +131,7 @@ class _PizzaPage extends State<PizzaPage> {
                           child: Column(
                             children: [
                               Icon(Icons.lunch_dining, color: Colors.red),
-                              Text("26g Carbs")
+                              Text("${options['carbs']}g Carbs")
                             ],
                           ),
                         ),
@@ -129,7 +149,8 @@ class _PizzaPage extends State<PizzaPage> {
                             Provider.of<PurchaseCount>(context, listen: false)
                                 .incrementCount();
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text("Pizza have been added")),
+                              const SnackBar(
+                                  content: Text("Pizza have been added")),
                             );
                           },
                           child: Text(
