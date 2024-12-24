@@ -1,8 +1,7 @@
-
 import 'package:flutter/material.dart';
-import 'package:project2/homepage.dart';
-
-
+import 'package:project2/admin_user.dart';
+import 'package:project2/myDB.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthPage extends StatefulWidget {
   AuthPage({super.key});
@@ -11,13 +10,64 @@ class AuthPage extends StatefulWidget {
 
 class AuthPageState extends State<AuthPage>
     with SingleTickerProviderStateMixin {
-  
-
+  Mydb mydb = Mydb();
   TabController? tabController;
   final _formKeyL = GlobalKey<FormState>();
   final _formKeyS = GlobalKey<FormState>();
-  //TextEditingController emailController = TextEditingController();
-  //TextEditingController passwordController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  TextEditingController snameController = TextEditingController();
+  TextEditingController semailController = TextEditingController();
+  TextEditingController spasswordController = TextEditingController();
+  void handel_login() async {
+    final email = emailController.text;
+    final pwd = passwordController.text;
+    int? isValid = await mydb.validateUser(email, pwd);
+    if (isValid != null) {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      List user =
+          await mydb.selectData('SELECT * FROM Users WHERE uid=$isValid');
+      await prefs.setInt('type', user[0]['type']);
+      await prefs.setString('email', user[0]['email']);
+      await prefs.setInt('uid', isValid);
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (context) => AdminUser()));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('invalid email or password')),
+      );
+    }
+  }
+
+  void handel_singup() async {
+    final name = snameController.text;
+    final email = semailController.text;
+    final pass = spasswordController.text;
+    bool? exist = await mydb.validatemail(email);
+
+    if (exist == false) {
+      int? number = await mydb.insertData(
+          'INSERT INTO Users(name,email,pass,type) VALUES("$name","$email","$pass",1)');
+      if (number != null) {
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        List user =
+            await mydb.selectData('SELECT * FROM Users WHERE uid=$number');
+        await prefs.setInt('type', user[0]['type']);
+        await prefs.setString('email', user[0]['email']);
+        await prefs.setInt('uid', number);
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => AdminUser()));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('invalid email or password')),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('invalid email already exist')));
+    }
+  }
+
   @override
   void initState() {
     tabController = TabController(length: 2, vsync: this, initialIndex: 0);
@@ -68,7 +118,7 @@ class AuthPageState extends State<AuthPage>
                   margin: EdgeInsets.fromLTRB(10, 5, 10, 5),
                   width: 350,
                   child: TextFormField(
-                    //controller: emailController,
+                    controller: emailController,
                     keyboardType: TextInputType.emailAddress,
                     decoration: const InputDecoration(
                         border: OutlineInputBorder(),
@@ -97,7 +147,7 @@ class AuthPageState extends State<AuthPage>
                   margin: EdgeInsets.fromLTRB(10, 5, 10, 5),
                   width: 350,
                   child: TextFormField(
-                    //controller: passwordController,
+                    controller: passwordController,
                     obscureText: true,
                     decoration: const InputDecoration(
                         border: OutlineInputBorder(),
@@ -133,8 +183,7 @@ class AuthPageState extends State<AuthPage>
                       ),
                       onPressed: () {
                         if (_formKeyL.currentState!.validate()) {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => HomePage()));
+                          handel_login();
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('Please fill input')),
@@ -165,65 +214,35 @@ class AuthPageState extends State<AuthPage>
                           fontSize: 20,
                           fontWeight: FontWeight.bold),
                     )),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Container(
-                      margin: EdgeInsets.fromLTRB(15, 5, 5, 5),
-                      width: 170,
-                      child: TextFormField(
-                        keyboardType: TextInputType.emailAddress,
-                        decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: Colors.black, width: 2),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: Colors.black, width: 1),
-                            ),
-                            labelText: "First Name",
-                            labelStyle: TextStyle(color: Colors.black)),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your First Name';
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
-                    Container(
-                      margin: EdgeInsets.fromLTRB(5, 5, 15, 5),
-                      width: 170,
-                      child: TextFormField(
-                        keyboardType: TextInputType.emailAddress,
-                        decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: Colors.black, width: 2),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: Colors.black, width: 1),
-                            ),
-                            labelText: "Last name",
-                            labelStyle: TextStyle(color: Colors.black)),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your Last Name';
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
-                  ],
+                Container(
+                  margin: EdgeInsets.fromLTRB(10, 5, 10, 5),
+                  width: 350,
+                  child: TextFormField(
+                    controller: snameController,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.black, width: 2),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.black, width: 1),
+                        ),
+                        labelText: "Username",
+                        labelStyle: TextStyle(color: Colors.black)),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your User Name';
+                      }
+                      return null;
+                    },
+                  ),
                 ),
                 Container(
                   margin: EdgeInsets.fromLTRB(10, 5, 10, 5),
                   width: 350,
                   child: TextFormField(
+                    controller: semailController,
                     keyboardType: TextInputType.emailAddress,
                     decoration: const InputDecoration(
                         border: OutlineInputBorder(),
@@ -252,6 +271,7 @@ class AuthPageState extends State<AuthPage>
                   margin: EdgeInsets.fromLTRB(10, 5, 10, 5),
                   width: 350,
                   child: TextFormField(
+                    controller: spasswordController,
                     obscureText: true,
                     decoration: const InputDecoration(
                         border: OutlineInputBorder(),
@@ -285,10 +305,9 @@ class AuthPageState extends State<AuthPage>
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10)),
                       ),
-                      onPressed: () {
+                      onPressed: () async {
                         if (_formKeyS.currentState!.validate()) {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => HomePage()));
+                          handel_singup();
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('Please fill input')),
@@ -309,10 +328,3 @@ class AuthPageState extends State<AuthPage>
     );
   }
 }
-//class____ with sinle sTier.....
-//TabController tab;
-//TabBarr
-//for validation :
-//Form 
-//TextFormField
-//ReExp(r'@')  for email validation

@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:project2/adminprof.dart';
 import 'package:project2/authpage.dart';
 import 'package:project2/PurchaseCount.dart';
+import 'package:project2/homepage.dart';
+import 'package:project2/myDB.dart';
+import 'package:project2/userprof.dart';
 import 'package:provider/provider.dart';
 void main() {
   runApp(
